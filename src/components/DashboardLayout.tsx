@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
+import { ThemeToggle } from "./ThemeToggle";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -22,10 +23,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
             
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
               <div className="text-sm text-muted-foreground">
                 Welcome back, Pastor John
               </div>
-              <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center text-white font-medium">
+              <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center text-primary-foreground font-medium">
                 PJ
               </div>
             </div>
