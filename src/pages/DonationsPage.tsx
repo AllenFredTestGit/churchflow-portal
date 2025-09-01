@@ -12,52 +12,91 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { VerifyDonationModal } from "@/components/VerifyDonationModal";
+import { AddEditMemberModal } from "@/components/AddEditMemberModal";
+import { useToast } from "@/hooks/use-toast";
 
 const DonationsPage = () => {
+  const { toast } = useToast();
   const [selectedDonation, setSelectedDonation] = useState(null);
-
-  // Mock data - replace with API call
-  const pendingDonations = [
+  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
+  const [guestMemberData, setGuestMemberData] = useState(null);
+  
+  // Mock pending donations data
+  const [pendingDonations, setPendingDonations] = useState([
     {
       id: 1,
       donorName: "John Smith",
-      amount: 250.00,
+      email: "john.smith@email.com",
+      phone: "+1 234-567-8901",
+      amount: "$250.00",
       fund: "General Fund",
       date: "2024-08-30",
+      submittedAt: "2024-08-30 10:30 AM",
       isKnownMember: true,
-      memberId: 123,
-      submittedAt: "2024-08-30 10:30 AM"
+      memberDetails: {
+        id: 123,
+        name: "John Smith",
+        status: "Active",
+        joinDate: "2022-01-15"
+      }
     },
     {
       id: 2,
       donorName: "Sarah Williams",
-      amount: 100.00,
+      email: "sarah.williams@email.com",
+      phone: "+1 555-123-4567",
+      amount: "$100.00",
       fund: "Mission Fund",
       date: "2024-08-30",
-      isKnownMember: false,
-      memberId: null,
-      submittedAt: "2024-08-30 09:15 AM"
+      submittedAt: "2024-08-30 09:15 AM",
+      isKnownMember: false
     },
     {
       id: 3,
       donorName: "Michael Brown",
-      amount: 500.00,
+      email: "michael.brown@email.com",
+      phone: "+1 555-987-6543",
+      amount: "$500.00",
       fund: "Building Fund",
       date: "2024-08-29",
-      isKnownMember: true,
-      memberId: 456,
-      submittedAt: "2024-08-29 6:45 PM"
+      submittedAt: "2024-08-29 6:45 PM",
+      isKnownMember: false
     }
-  ];
+  ]);
+
+  const handleVerifyDonation = (donation) => {
+    setSelectedDonation(donation);
+    setIsVerifyModalOpen(true);
+  };
+
+  const handleVerifyComplete = (donationId, action) => {
+    setPendingDonations(prev => prev.filter(d => d.id !== donationId));
+  };
+
+  const handleCreateMemberFromGuest = (guestInfo) => {
+    setGuestMemberData({
+      name: guestInfo.name,
+      email: guestInfo.email,
+      phone: guestInfo.phone,
+      status: "Active",
+      joinDate: new Date().toISOString().split('T')[0],
+      family: guestInfo.name.split(' ').slice(-1)[0] + " Family",
+      membershipType: "Regular Member"
+    });
+    setIsAddMemberModalOpen(true);
+  };
+
+  const handleSaveGuestMember = (memberData) => {
+    // Here you would typically save the member and link the donation
+    toast({
+      title: "Member created successfully",
+      description: `${memberData.name} has been added as a new member and linked to their donation.`,
+    });
+    setIsAddMemberModalOpen(false);
+    setGuestMemberData(null);
+  };
 
   return (
     <DashboardLayout>
@@ -132,7 +171,7 @@ const DonationsPage = () => {
                   {pendingDonations.map((donation) => (
                     <TableRow key={donation.id}>
                       <TableCell className="font-medium">{donation.donorName}</TableCell>
-                      <TableCell className="font-semibold">${donation.amount.toFixed(2)}</TableCell>
+                      <TableCell className="font-semibold">{donation.amount}</TableCell>
                       <TableCell>{donation.fund}</TableCell>
                       <TableCell>{donation.date}</TableCell>
                       <TableCell>
@@ -144,68 +183,15 @@ const DonationsPage = () => {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">{donation.submittedAt}</TableCell>
-                      <TableCell className="text-right">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button 
-                              size="sm" 
-                              className="gap-2"
-                              onClick={() => setSelectedDonation(donation)}
-                            >
-                              <CheckCircle className="h-4 w-4" />
-                              Verify
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Verify Donation</DialogTitle>
-                              <DialogDescription>
-                                Review and verify this donation submission
-                              </DialogDescription>
-                            </DialogHeader>
-                            {selectedDonation && (
-                              <div className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <label className="text-sm font-medium">Donor Name</label>
-                                    <p className="text-sm text-muted-foreground">{selectedDonation.donorName}</p>
-                                  </div>
-                                  <div>
-                                    <label className="text-sm font-medium">Amount</label>
-                                    <p className="text-sm text-muted-foreground">${selectedDonation.amount.toFixed(2)}</p>
-                                  </div>
-                                  <div>
-                                    <label className="text-sm font-medium">Fund</label>
-                                    <p className="text-sm text-muted-foreground">{selectedDonation.fund}</p>
-                                  </div>
-                                  <div>
-                                    <label className="text-sm font-medium">Date</label>
-                                    <p className="text-sm text-muted-foreground">{selectedDonation.date}</p>
-                                  </div>
-                                </div>
-                                
-                                <div className="p-4 bg-muted rounded-lg">
-                                  <p className="text-sm font-medium">
-                                    {selectedDonation.isKnownMember 
-                                      ? `This donation is from a known member (ID: ${selectedDonation.memberId})`
-                                      : 'This donation is from a guest. You can verify as guest or create a new member profile.'
-                                    }
-                                  </p>
-                                </div>
-                              </div>
-                            )}
-                            <DialogFooter className="gap-2">
-                              {selectedDonation && !selectedDonation.isKnownMember && (
-                                <Button variant="outline">
-                                  Create Member Profile
-                                </Button>
-                              )}
-                              <Button>
-                                Verify & Record
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
+                       <TableCell className="text-right">
+                        <Button 
+                          size="sm" 
+                          className="gap-2"
+                          onClick={() => handleVerifyDonation(donation)}
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                          Verify
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -215,6 +201,23 @@ const DonationsPage = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Modals */}
+      <VerifyDonationModal
+        donation={selectedDonation}
+        isOpen={isVerifyModalOpen}
+        onClose={() => setIsVerifyModalOpen(false)}
+        onVerify={handleVerifyComplete}
+        onCreateMember={handleCreateMemberFromGuest}
+      />
+
+      <AddEditMemberModal
+        member={guestMemberData}
+        isOpen={isAddMemberModalOpen}
+        onClose={() => setIsAddMemberModalOpen(false)}
+        onSave={handleSaveGuestMember}
+        isEdit={false}
+      />
     </DashboardLayout>
   );
 };

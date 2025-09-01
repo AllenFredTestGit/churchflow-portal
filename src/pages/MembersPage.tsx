@@ -13,12 +13,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { MemberProfileModal } from "@/components/MemberProfileModal";
+import { AddEditMemberModal } from "@/components/AddEditMemberModal";
+import { useToast } from "@/hooks/use-toast";
 
 const MembersPage = () => {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Mock data - replace with API call
-  const members = [
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isAddEditModalOpen, setIsAddEditModalOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState(null);
+  const [members, setMembers] = useState([
     {
       id: 1,
       name: "John Smith",
@@ -26,7 +32,11 @@ const MembersPage = () => {
       phone: "+1 234-567-8901",
       status: "Active",
       joinDate: "2022-01-15",
-      family: "Smith Family"
+      family: "Smith Family",
+      address: "123 Main St, City, State 12345",
+      emergencyContact: "Jane Smith - +1 234-567-8902",
+      dateOfBirth: "1985-03-20",
+      membershipType: "Regular Member"
     },
     {
       id: 2,
@@ -35,7 +45,11 @@ const MembersPage = () => {
       phone: "+1 234-567-8902",
       status: "Active",
       joinDate: "2021-03-22",
-      family: "Johnson Family"
+      family: "Johnson Family",
+      address: "456 Oak Ave, City, State 12345",
+      emergencyContact: "Robert Johnson - +1 234-567-8903",
+      dateOfBirth: "1990-07-15",
+      membershipType: "Regular Member"
     },
     {
       id: 3,
@@ -44,14 +58,47 @@ const MembersPage = () => {
       phone: "+1 234-567-8903",
       status: "Inactive",
       joinDate: "2020-07-10",
-      family: "Wilson Family"
+      family: "Wilson Family",
+      address: "789 Pine St, City, State 12345",
+      emergencyContact: "Sarah Wilson - +1 234-567-8904",
+      dateOfBirth: "1978-11-03",
+      membershipType: "Associate Member"
     }
-  ];
+  ]);
 
   const filteredMembers = members.filter(member =>
     member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     member.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleViewProfile = (member) => {
+    setSelectedMember(member);
+    setIsProfileModalOpen(true);
+  };
+
+  const handleEditMember = (member) => {
+    setEditingMember(member);
+    setIsAddEditModalOpen(true);
+  };
+
+  const handleAddMember = () => {
+    setEditingMember(null);
+    setIsAddEditModalOpen(true);
+  };
+
+  const handleSaveMember = (memberData) => {
+    if (editingMember) {
+      // Update existing member
+      setMembers(prev => prev.map(m => 
+        m.id === editingMember.id ? { ...memberData, id: editingMember.id } : m
+      ));
+    } else {
+      // Add new member
+      setMembers(prev => [...prev, { ...memberData, id: Date.now() }]);
+    }
+    setIsAddEditModalOpen(false);
+    setEditingMember(null);
+  };
 
   return (
     <DashboardLayout>
@@ -62,7 +109,7 @@ const MembersPage = () => {
             <h1 className="text-3xl font-bold text-foreground">Members</h1>
             <p className="text-muted-foreground">Manage church membership records</p>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={handleAddMember}>
             <UserPlus className="h-4 w-4" />
             Add New Member
           </Button>
@@ -160,7 +207,11 @@ const MembersPage = () => {
                       <TableCell>{member.joinDate}</TableCell>
                       <TableCell>{member.family}</TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleViewProfile(member)}
+                        >
                           View Profile
                         </Button>
                       </TableCell>
@@ -187,6 +238,22 @@ const MembersPage = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Modals */}
+      <MemberProfileModal
+        member={selectedMember}
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        onEdit={handleEditMember}
+      />
+
+      <AddEditMemberModal
+        member={editingMember}
+        isOpen={isAddEditModalOpen}
+        onClose={() => setIsAddEditModalOpen(false)}
+        onSave={handleSaveMember}
+        isEdit={!!editingMember}
+      />
     </DashboardLayout>
   );
 };
