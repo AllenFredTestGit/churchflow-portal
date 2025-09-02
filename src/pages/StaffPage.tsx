@@ -23,13 +23,15 @@ import {
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { StaffPermissionsModal } from "@/components/StaffPermissionsModal";
 
 const StaffPage = () => {
   const [selectedStaff, setSelectedStaff] = useState<any>(null);
   const [staffPermissions, setStaffPermissions] = useState<Record<string, boolean>>({});
+  const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
 
   // Mock data
-  const staffMembers = [
+  const [staffMembers, setStaffMembers] = useState([
     {
       id: 1,
       name: "Pastor John Smith",
@@ -66,7 +68,7 @@ const StaffPage = () => {
       lastLogin: "2024-08-28",
       permissionCount: 4
     }
-  ];
+  ]);
 
   const availablePermissions = [
     { key: "can_view_members", label: "View Members", description: "Can view member profiles and information" },
@@ -265,6 +267,21 @@ const StaffPage = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Staff Permissions Modal */}
+        <StaffPermissionsModal
+          isOpen={isPermissionsModalOpen}
+          onClose={() => {
+            setIsPermissionsModalOpen(false);
+            setSelectedStaff(null);
+          }}
+          onSave={(updatedStaff) => {
+            setStaffMembers(prev => prev.map(staff => 
+              staff.id === updatedStaff.id ? updatedStaff : staff
+            ));
+          }}
+          staffMember={selectedStaff}
+        />
       </div>
     </DashboardLayout>
   );

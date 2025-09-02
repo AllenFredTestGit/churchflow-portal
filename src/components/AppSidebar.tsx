@@ -37,6 +37,12 @@ const navigationItems = [
     description: "Membership management"
   },
   {
+    title: "Families",
+    url: "/families",
+    icon: Users,
+    description: "Family units"
+  },
+  {
     title: "Donations",
     url: "/donations", 
     icon: Heart,

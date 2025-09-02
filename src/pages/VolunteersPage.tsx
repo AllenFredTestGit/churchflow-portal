@@ -18,16 +18,26 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { AddEditRoleModal } from "@/components/AddEditRoleModal";
+import { VolunteerSchedulingModal } from "@/components/VolunteerSchedulingModal";
+import { ManageAssignmentModal } from "@/components/ManageAssignmentModal";
 
 const VolunteersPage = () => {
+  const [isAddRoleModalOpen, setIsAddRoleModalOpen] = useState(false);
+  const [isEditRoleModalOpen, setIsEditRoleModalOpen] = useState(false);
+  const [isSchedulingModalOpen, setIsSchedulingModalOpen] = useState(false);
+  const [isManageAssignmentModalOpen, setIsManageAssignmentModalOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<any>(null);
+  const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
+
   // Mock data
-  const volunteerRoles = [
+  const [volunteerRoles, setVolunteerRoles] = useState([
     { id: 1, name: "Usher", description: "Welcome guests and assist with seating", activeCount: 8 },
     { id: 2, name: "Greeter", description: "Welcome people at the entrance", activeCount: 6 },
     { id: 3, name: "Sound Tech", description: "Operate sound equipment", activeCount: 4 },
     { id: 4, name: "Worship Team", description: "Lead congregational worship", activeCount: 12 },
     { id: 5, name: "Children's Ministry", description: "Assist with children's programs", activeCount: 15 }
-  ];
+  ]);
 
   const upcomingAssignments = [
     {
@@ -59,6 +69,28 @@ const VolunteersPage = () => {
     }
   ];
 
+  const handleEditRole = (role: any) => {
+    setSelectedRole(role);
+    setIsEditRoleModalOpen(true);
+  };
+
+  const handleManageAssignment = (assignment: any) => {
+    setSelectedAssignment(assignment);
+    setIsManageAssignmentModalOpen(true);
+  };
+
+  const handleSaveRole = (roleData: any) => {
+    if (selectedRole) {
+      // Update existing role
+      setVolunteerRoles(prev => prev.map(role => 
+        role.id === selectedRole.id ? { ...roleData, id: selectedRole.id } : role
+      ));
+    } else {
+      // Add new role
+      setVolunteerRoles(prev => [...prev, roleData]);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -68,7 +100,7 @@ const VolunteersPage = () => {
             <h1 className="text-3xl font-bold text-foreground">Volunteers</h1>
             <p className="text-muted-foreground">Manage volunteer roles and scheduling</p>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setIsSchedulingModalOpen(true)}>
             <Plus className="h-4 w-4" />
             Schedule Volunteers
           </Button>
@@ -125,7 +157,7 @@ const VolunteersPage = () => {
                     <Settings className="h-5 w-5" />
                     Volunteer Roles
                   </CardTitle>
-                  <Button variant="outline" className="gap-2">
+                  <Button variant="outline" className="gap-2" onClick={() => setIsAddRoleModalOpen(true)}>
                     <Plus className="h-4 w-4" />
                     Add Role
                   </Button>
@@ -143,7 +175,7 @@ const VolunteersPage = () => {
                         <Badge variant="secondary">
                           {role.activeCount} volunteers
                         </Badge>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => handleEditRole(role)}>
                           Edit
                         </Button>
                       </div>
@@ -166,7 +198,7 @@ const VolunteersPage = () => {
                 <div className="text-center py-8 text-muted-foreground">
                   <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>Select an event and create volunteer slots</p>
-                  <Button className="mt-4">Create Schedule</Button>
+                  <Button className="mt-4" onClick={() => setIsSchedulingModalOpen(true)}>Create Schedule</Button>
                 </div>
               </CardContent>
             </Card>
@@ -217,7 +249,7 @@ const VolunteersPage = () => {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right">
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" onClick={() => handleManageAssignment(assignment)}>
                               Manage
                             </Button>
                           </TableCell>
@@ -230,6 +262,44 @@ const VolunteersPage = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Modals */}
+        <AddEditRoleModal
+          isOpen={isAddRoleModalOpen}
+          onClose={() => setIsAddRoleModalOpen(false)}
+          onSave={handleSaveRole}
+        />
+
+        <AddEditRoleModal
+          isOpen={isEditRoleModalOpen}
+          onClose={() => {
+            setIsEditRoleModalOpen(false);
+            setSelectedRole(null);
+          }}
+          onSave={handleSaveRole}
+          role={selectedRole}
+          isEdit={true}
+        />
+
+        <VolunteerSchedulingModal
+          isOpen={isSchedulingModalOpen}
+          onClose={() => setIsSchedulingModalOpen(false)}
+          onSave={(scheduleData) => {
+            console.log("Schedule created:", scheduleData);
+          }}
+        />
+
+        <ManageAssignmentModal
+          isOpen={isManageAssignmentModalOpen}
+          onClose={() => {
+            setIsManageAssignmentModalOpen(false);
+            setSelectedAssignment(null);
+          }}
+          onSave={(assignmentData) => {
+            console.log("Assignment updated:", assignmentData);
+          }}
+          assignment={selectedAssignment}
+        />
       </div>
     </DashboardLayout>
   );

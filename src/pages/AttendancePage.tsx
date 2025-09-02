@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, UserCheck, UserPlus, Calendar, Users } from "lucide-react";
+import { Search, UserCheck, UserPlus, Calendar, Users, Plus } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,11 +22,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { CreateEventModal } from "@/components/CreateEventModal";
 
 const AttendancePage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<string>("");
   const [checkedInMembers, setCheckedInMembers] = useState<Set<number>>(new Set());
+  const [isCreateEventModalOpen, setIsCreateEventModalOpen] = useState(false);
 
   // Mock data
   const events = [
@@ -63,6 +65,10 @@ const AttendancePage = () => {
             <h1 className="text-3xl font-bold text-foreground">Attendance</h1>
             <p className="text-muted-foreground">Digital check-in and attendance tracking</p>
           </div>
+          <Button className="gap-2" onClick={() => setIsCreateEventModalOpen(true)}>
+            <Plus className="h-4 w-4" />
+            Create Event
+          </Button>
         </div>
 
         {/* Event Selection */}
@@ -258,6 +264,16 @@ const AttendancePage = () => {
             )}
           </>
         )}
+
+        {/* Create Event Modal */}
+        <CreateEventModal
+          isOpen={isCreateEventModalOpen}
+          onClose={() => setIsCreateEventModalOpen(false)}
+          onSave={(eventData) => {
+            // Add event to the events list (in a real app, this would be an API call)
+            console.log("New event created:", eventData);
+          }}
+        />
       </div>
     </DashboardLayout>
   );
