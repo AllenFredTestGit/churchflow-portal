@@ -18,8 +18,11 @@ interface StaffMember {
   id: number;
   name: string;
   email: string;
-  jobTitle: string;
-  permissions: string[];
+  role: string;
+  status: string;
+  lastLogin: string;
+  permissionCount: number;
+  permissions?: string[];
 }
 
 interface StaffPermissionsModalProps {
@@ -48,7 +51,11 @@ export const StaffPermissionsModal = ({ isOpen, onClose, onSave, staffMember }: 
 
   useEffect(() => {
     if (staffMember && isOpen) {
-      setSelectedPermissions(staffMember.permissions || []);
+      // Mock permissions based on staff member for demo
+      const mockPermissions = staffMember.id === 1 ? 
+        ['can_view_members', 'can_edit_members', 'can_manage_staff'] : 
+        ['can_view_members'];
+      setSelectedPermissions(mockPermissions);
     } else {
       setSelectedPermissions([]);
     }
@@ -105,7 +112,7 @@ export const StaffPermissionsModal = ({ isOpen, onClose, onSave, staffMember }: 
               <div className="flex-1">
                 <h3 className="font-semibold">{staffMember.name}</h3>
                 <p className="text-sm text-muted-foreground">{staffMember.email}</p>
-                <Badge variant="outline" className="mt-1">{staffMember.jobTitle}</Badge>
+                <Badge variant="outline" className="mt-1">{staffMember.role}</Badge>
               </div>
             </div>
           </div>
