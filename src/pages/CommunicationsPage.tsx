@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageSquare, Mail, Phone, Send, Users, FileDown } from "lucide-react";
+import { MessageSquare, Mail, Phone, Send, Users, FileDown, Calendar, Clock } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,11 +21,13 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScheduledMessagesModal } from "@/components/ScheduledMessagesModal";
 
 const CommunicationsPage = () => {
   const [selectedRecipients, setSelectedRecipients] = useState<number[]>([]);
   const [messageContent, setMessageContent] = useState("");
   const [communicationChannel, setCommunicationChannel] = useState<string>("");
+  const [isScheduledMessagesModalOpen, setIsScheduledMessagesModalOpen] = useState(false);
 
   // Mock data - could come from analytics/reports
   const targetGroups = [
@@ -118,7 +120,9 @@ const CommunicationsPage = () => {
         <Tabs defaultValue="compose" className="space-y-4">
           <TabsList>
             <TabsTrigger value="compose">Compose Message</TabsTrigger>
+            <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
             <TabsTrigger value="history">Message History</TabsTrigger>
+            <TabsTrigger value="drafts">Drafts</TabsTrigger>
             <TabsTrigger value="export">Export Lists</TabsTrigger>
           </TabsList>
 
@@ -246,6 +250,81 @@ const CommunicationsPage = () => {
             </div>
           </TabsContent>
 
+          <TabsContent value="scheduled" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-medium">Scheduled & Automated Messages</h3>
+                <p className="text-sm text-muted-foreground">
+                  Manage birthday messages, event reminders, and automated communications
+                </p>
+              </div>
+              <Button 
+                onClick={() => setIsScheduledMessagesModalOpen(true)}
+                className="gap-2"
+              >
+                <Calendar className="h-4 w-4" />
+                Schedule Message
+              </Button>
+            </div>
+
+            <div className="grid gap-4">
+              {/* Active Scheduled Messages */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Active Scheduled Messages</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <h4 className="font-medium">Birthday Greetings</h4>
+                        <p className="text-sm text-muted-foreground">Sent daily at 9:00 AM to members on their birthday</p>
+                        <Badge variant="secondary" className="mt-1">Automated</Badge>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm">Edit</Button>
+                        <Button variant="outline" size="sm">Disable</Button>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <h4 className="font-medium">Sunday Service Reminder</h4>
+                        <p className="text-sm text-muted-foreground">Weekly reminder sent Saturdays at 6:00 PM</p>
+                        <Badge variant="outline" className="mt-1">Recurring</Badge>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm">Edit</Button>
+                        <Button variant="outline" size="sm">Pause</Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Volunteer Reminders */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Volunteer Reminders</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <h4 className="font-medium">Automatic Volunteer Reminders</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Sent 24-48 hours before scheduled volunteer assignments
+                      </p>
+                      <Badge variant="secondary" className="mt-1">System Automated</Badge>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm">Configure</Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
           <TabsContent value="history" className="space-y-4">
             <Card>
               <CardHeader>
@@ -274,9 +353,54 @@ const CommunicationsPage = () => {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+            </TabsContent>
 
-          <TabsContent value="export" className="space-y-4">
+            <TabsContent value="drafts" className="space-y-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-medium">Saved Drafts</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Messages you've saved for later
+                  </p>
+                </div>
+              </div>
+
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <h4 className="font-medium">Welcome Message Draft</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Recipients: New Members • Last modified: 2 days ago
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm">Edit</Button>
+                        <Button variant="outline" size="sm">Send</Button>
+                        <Button variant="outline" size="sm">Delete</Button>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <h4 className="font-medium">Easter Event Reminder</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Recipients: All Members • Last modified: 1 week ago
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm">Edit</Button>
+                        <Button variant="outline" size="sm">Send</Button>
+                        <Button variant="outline" size="sm">Delete</Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="export" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -307,6 +431,12 @@ const CommunicationsPage = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Scheduled Messages Modal */}
+        <ScheduledMessagesModal
+          isOpen={isScheduledMessagesModalOpen}
+          onClose={() => setIsScheduledMessagesModalOpen(false)}
+        />
       </div>
     </DashboardLayout>
   );

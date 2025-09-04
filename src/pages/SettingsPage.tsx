@@ -36,6 +36,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { CustomFieldsModal } from "@/components/CustomFieldsModal";
 
 const SettingsPage = () => {
   const [customFields, setCustomFields] = useState([
@@ -43,6 +44,7 @@ const SettingsPage = () => {
     { id: 2, name: "Baptism Date", type: "Date", required: false, createdAt: "2024-02-10" },
     { id: 3, name: "Small Group Leader", type: "Yes/No", required: false, createdAt: "2024-03-05" }
   ]);
+  const [isCustomFieldsModalOpen, setIsCustomFieldsModalOpen] = useState(false);
 
   const [newField, setNewField] = useState({
     name: "",
@@ -103,63 +105,13 @@ const SettingsPage = () => {
                     <Database className="h-5 w-5" />
                     Custom Member Fields
                   </CardTitle>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button className="gap-2">
-                        <Plus className="h-4 w-4" />
-                        Add Custom Field
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Add Custom Field</DialogTitle>
-                        <DialogDescription>
-                          Create a new custom field that will appear on all member profiles
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="field-name">Field Name *</Label>
-                          <Input
-                            id="field-name"
-                            placeholder="e.g., Spiritual Gifts"
-                            value={newField.name}
-                            onChange={(e) => setNewField({...newField, name: e.target.value})}
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="field-type">Data Type *</Label>
-                          <Select value={newField.type} onValueChange={(value) => setNewField({...newField, type: value})}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select field type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {fieldTypes.map((type) => (
-                                <SelectItem key={type.value} value={type.value}>
-                                  {type.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            id="required"
-                            checked={newField.required}
-                            onChange={(e) => setNewField({...newField, required: e.target.checked})}
-                          />
-                          <Label htmlFor="required">Required field</Label>
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button variant="outline">Cancel</Button>
-                        <Button onClick={addCustomField} disabled={!newField.name || !newField.type}>
-                          Add Field
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
+                  <Button 
+                    onClick={() => setIsCustomFieldsModalOpen(true)}
+                    className="gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Manage Custom Fields
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent>

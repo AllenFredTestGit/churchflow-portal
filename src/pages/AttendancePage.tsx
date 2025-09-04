@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, UserCheck, UserPlus, Calendar, Users, Plus } from "lucide-react";
+import { Search, UserCheck, UserPlus, Calendar, Users, Plus, CheckCircle } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,12 +23,18 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { CreateEventModal } from "@/components/CreateEventModal";
+import { DigitalCheckInModal } from "@/components/DigitalCheckInModal";
+import { GroupAttendanceModal } from "@/components/GroupAttendanceModal";
 
 const AttendancePage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<string>("");
   const [checkedInMembers, setCheckedInMembers] = useState<Set<number>>(new Set());
   const [isCreateEventModalOpen, setIsCreateEventModalOpen] = useState(false);
+  const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
+  const [isGroupAttendanceModalOpen, setIsGroupAttendanceModalOpen] = useState(false);
+  const [selectedEventForCheckIn, setSelectedEventForCheckIn] = useState<any>(null);
+  const [selectedGroup, setSelectedGroup] = useState<any>(null);
 
   // Mock data
   const events = [
@@ -96,7 +102,11 @@ const AttendancePage = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <Button disabled={!selectedEvent}>
+              <Button disabled={!selectedEvent} onClick={() => {
+                const event = events.find(e => e.id === selectedEvent);
+                setSelectedEventForCheckIn(event);
+                setIsCheckInModalOpen(true);
+              }}>
                 Start Check-in Session
               </Button>
             </div>
@@ -273,6 +283,26 @@ const AttendancePage = () => {
             // Add event to the events list (in a real app, this would be an API call)
             console.log("New event created:", eventData);
           }}
+        />
+
+        {/* Digital Check-in Modal */}
+        <DigitalCheckInModal
+          isOpen={isCheckInModalOpen}
+          onClose={() => {
+            setIsCheckInModalOpen(false);
+            setSelectedEventForCheckIn(null);
+          }}
+          gathering={selectedEventForCheckIn}
+        />
+
+        {/* Group Attendance Modal */}
+        <GroupAttendanceModal
+          isOpen={isGroupAttendanceModalOpen}
+          onClose={() => {
+            setIsGroupAttendanceModalOpen(false);
+            setSelectedGroup(null);
+          }}
+          group={selectedGroup}
         />
       </div>
     </DashboardLayout>
