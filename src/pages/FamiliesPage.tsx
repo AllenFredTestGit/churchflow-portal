@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Plus, Users, Eye } from "lucide-react";
+import { Search, Plus, Users, Eye, Edit2 } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,14 +23,16 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { AddEditFamilyModal } from "@/components/AddEditFamilyModal";
 
 const FamiliesPage = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedFamily, setSelectedFamily] = useState<any>(null);
-  const [newFamilyName, setNewFamilyName] = useState("");
+  const [editingFamily, setEditingFamily] = useState<any>(null);
 
   const [families, setFamilies] = useState([
     {
@@ -72,33 +74,19 @@ const FamiliesPage = () => {
     family.familyName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddFamily = () => {
-    if (!newFamilyName.trim()) {
-      toast({
-        title: "Validation Error",
-        description: "Please enter a family name.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const handleAddFamily = (familyData: any) => {
+    setFamilies([...families, familyData]);
+  };
 
-    const newFamily = {
-      id: Date.now(),
-      familyName: newFamilyName,
-      memberCount: 0,
-      members: [],
-      createdDate: new Date().toISOString().split('T')[0]
-    };
+  const handleEditFamily = (familyData: any) => {
+    setFamilies(families.map(family => 
+      family.id === familyData.id ? familyData : family
+    ));
+  };
 
-    setFamilies([...families, newFamily]);
-    
-    toast({
-      title: "Family Added",
-      description: `${newFamilyName} has been added successfully.`,
-    });
-
-    setNewFamilyName("");
-    setIsAddModalOpen(false);
+  const openEditModal = (family: any) => {
+    setEditingFamily(family);
+    setIsEditModalOpen(true);
   };
 
   const handleViewFamily = (family: any) => {
@@ -222,35 +210,24 @@ const FamiliesPage = () => {
       </div>
 
       {/* Add Family Modal */}
-      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Add New Family</DialogTitle>
-            <DialogDescription>
-              Create a new family unit for member organization.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="familyName">Family Name *</Label>
-              <Input
-                id="familyName"
-                placeholder="e.g., Smith Family"
-                value={newFamilyName}
-                onChange={(e) => setNewFamilyName(e.target.value)}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleAddFamily}>
-              Add Family
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <AddEditFamilyModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSave={handleAddFamily}
+        mode="add"
+      />
+
+      {/* Edit Family Modal */}
+      <AddEditFamilyModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingFamily(null);
+        }}
+        onSave={handleEditFamily}
+        family={editingFamily}
+        mode="edit"
+      />
 
       {/* View Family Modal */}
       <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
@@ -302,7 +279,10 @@ const FamiliesPage = () => {
             <Button variant="outline" onClick={() => setIsViewModalOpen(false)}>
               Close
             </Button>
-            <Button>
+            <Button onClick={() => {
+              openEditModal(selectedFamily);
+              setIsViewModalOpen(false);
+            }}>
               Edit Family
             </Button>
           </DialogFooter>

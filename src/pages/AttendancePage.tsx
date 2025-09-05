@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, UserCheck, UserPlus, Calendar, Users, Plus, CheckCircle } from "lucide-react";
+import { Search, UserCheck, UserPlus, Calendar, Users, Plus, CheckCircle, Eye } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -25,6 +33,7 @@ import { Label } from "@/components/ui/label";
 import { CreateEventModal } from "@/components/CreateEventModal";
 import { DigitalCheckInModal } from "@/components/DigitalCheckInModal";
 import { GroupAttendanceModal } from "@/components/GroupAttendanceModal";
+import { EventManagementModal } from "@/components/EventManagementModal";
 
 const AttendancePage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,14 +42,27 @@ const AttendancePage = () => {
   const [isCreateEventModalOpen, setIsCreateEventModalOpen] = useState(false);
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
   const [isGroupAttendanceModalOpen, setIsGroupAttendanceModalOpen] = useState(false);
+  const [isEventManagementModalOpen, setIsEventManagementModalOpen] = useState(false);
   const [selectedEventForCheckIn, setSelectedEventForCheckIn] = useState<any>(null);
+  const [selectedEventForManagement, setSelectedEventForManagement] = useState<any>(null);
   const [selectedGroup, setSelectedGroup] = useState<any>(null);
 
   // Mock data
   const events = [
-    { id: "1", name: "Sunday Service", date: "2024-08-31", type: "Service" },
-    { id: "2", name: "Youth Fellowship", date: "2024-08-31", type: "Group" },
-    { id: "3", name: "Prayer Meeting", date: "2024-08-28", type: "Meeting" }
+    { id: "1", name: "Sunday Service", date: "2024-08-31", type: "Service", category: "Regular Sunday Service", status: "Completed", expectedAttendance: 45 },
+    { id: "2", name: "Youth Fellowship", date: "2024-08-31", type: "Group", category: "Group Meeting", status: "Completed", expectedAttendance: 25 },
+    { id: "3", name: "Prayer Meeting", date: "2024-08-28", type: "Meeting", category: "Prayer Meeting", status: "Completed", expectedAttendance: 30 },
+    { id: "4", name: "Easter Service", date: "2024-03-31", type: "Service", category: "Annual Event", status: "Completed", expectedAttendance: 120 },
+    { id: "5", name: "Christmas Service", date: "2023-12-25", type: "Service", category: "Annual Event", status: "Completed", expectedAttendance: 150 },
+    { id: "6", name: "Board Meeting", date: "2024-08-25", type: "Meeting", category: "Meeting", status: "Completed", expectedAttendance: 12 }
+  ];
+
+  const eventCategories = [
+    { value: "all", label: "All Events" },
+    { value: "Regular Sunday Service", label: "Regular Sunday Services" },
+    { value: "Annual Event", label: "Annual Events" },
+    { value: "Meeting", label: "Meetings" },
+    { value: "Group Meeting", label: "Group Meetings" }
   ];
 
   const members = [
@@ -304,7 +326,93 @@ const AttendancePage = () => {
           }}
           group={selectedGroup}
         />
+
+        {/* Event Management Modal */}
+        <EventManagementModal
+          isOpen={isEventManagementModalOpen}
+          onClose={() => {
+            setIsEventManagementModalOpen(false);
+            setSelectedEventForManagement(null);
+          }}
+          event={selectedEventForManagement}
+        />
       </div>
+
+      {/* Event Management Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Event Management
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {/* Event Categories */}
+            <div className="flex gap-2 flex-wrap">
+              {eventCategories.map((category) => (
+                <Badge 
+                  key={category.value} 
+                  variant="secondary" 
+                  className="cursor-pointer hover:bg-primary hover:text-primary-foreground"
+                  onClick={() => {
+                    // Filter events by category
+                    console.log("Filter by:", category.value);
+                  }}
+                >
+                  {category.label}
+                </Badge>
+              ))}
+            </div>
+
+            {/* Events Table */}
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Event Name</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Expected</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {events.map((event) => (
+                    <TableRow key={event.id}>
+                      <TableCell className="font-medium">{event.name}</TableCell>
+                      <TableCell>{event.date}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{event.category}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={event.status === 'Completed' ? 'default' : 'secondary'}>
+                          {event.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{event.expectedAttendance}</TableCell>
+                      <TableCell className="text-right">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedEventForManagement(event);
+                            setIsEventManagementModalOpen(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View Details
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </DashboardLayout>
   );
 };

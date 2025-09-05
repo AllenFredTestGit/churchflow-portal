@@ -8,7 +8,8 @@ import {
   BarChart3,
   MessageSquare,
   Settings,
-  Shield
+  Shield,
+  Building2
 } from "lucide-react";
 
 import {
@@ -75,6 +76,12 @@ const navigationItems = [
 ];
 
 const adminItems = [
+  {
+    title: "Branches",
+    url: "/branches",
+    icon: Building2,
+    description: "Church locations"
+  },
   {
     title: "Staff Management",
     url: "/staff",

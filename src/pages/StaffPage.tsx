@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, Shield, Settings, UserPlus } from "lucide-react";
+import { Users, Shield, Settings, UserPlus, Eye, Edit2 } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,23 +12,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { StaffPermissionsModal } from "@/components/StaffPermissionsModal";
+import { AddEditStaffModal } from "@/components/AddEditStaffModal";
+import { StaffProfileModal } from "@/components/StaffProfileModal";
 
 const StaffPage = () => {
   const [selectedStaff, setSelectedStaff] = useState<any>(null);
-  const [staffPermissions, setStaffPermissions] = useState<Record<string, boolean>>({});
-  const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
+  const [isAddStaffModalOpen, setIsAddStaffModalOpen] = useState(false);
+  const [isEditStaffModalOpen, setIsEditStaffModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [editingStaff, setEditingStaff] = useState<any>(null);
 
   // Mock data
   const [staffMembers, setStaffMembers] = useState([
@@ -39,7 +31,10 @@ const StaffPage = () => {
       role: "Senior Pastor",
       status: "Active",
       lastLogin: "2024-08-30",
-      permissionCount: 12
+      permissionCount: 12,
+      phone: "+1 234-567-8900",
+      jobTitle: "Senior Pastor",
+      appointmentDate: "2010-01-15"
     },
     {
       id: 2,
@@ -48,7 +43,10 @@ const StaffPage = () => {
       role: "Administrative Assistant",
       status: "Active",
       lastLogin: "2024-08-30",
-      permissionCount: 8
+      permissionCount: 8,
+      phone: "+1 234-567-8901",
+      jobTitle: "Administrative Assistant",
+      appointmentDate: "2015-06-20"
     },
     {
       id: 3,
@@ -57,7 +55,10 @@ const StaffPage = () => {
       role: "Youth Pastor",
       status: "Active",
       lastLogin: "2024-08-29",
-      permissionCount: 6
+      permissionCount: 6,
+      phone: "+1 234-567-8902",
+      jobTitle: "Youth Pastor",
+      appointmentDate: "2018-03-10"
     },
     {
       id: 4,
@@ -66,7 +67,10 @@ const StaffPage = () => {
       role: "Worship Leader",
       status: "Active",
       lastLogin: "2024-08-28",
-      permissionCount: 4
+      permissionCount: 4,
+      phone: "+1 234-567-8903",
+      jobTitle: "Worship Leader",
+      appointmentDate: "2020-09-01"
     }
   ]);
 
@@ -85,31 +89,24 @@ const StaffPage = () => {
     { key: "can_manage_events", label: "Manage Events", description: "Can create and manage church events" }
   ];
 
-  const handlePermissionChange = (permissionKey: string, checked: boolean) => {
-    setStaffPermissions(prev => ({
-      ...prev,
-      [permissionKey]: checked
-    }));
+  const handleAddStaff = (staffData: any) => {
+    setStaffMembers([...staffMembers, staffData]);
   };
 
-  const openPermissionsDialog = (staff: any) => {
+  const handleEditStaff = (staffData: any) => {
+    setStaffMembers(staffMembers.map(staff => 
+      staff.id === staffData.id ? staffData : staff
+    ));
+  };
+
+  const openProfileModal = (staff: any) => {
     setSelectedStaff(staff);
-    // Mock current permissions for the selected staff
-    const mockPermissions: Record<string, boolean> = {
-      can_view_members: true,
-      can_edit_members: staff.id === 1 || staff.id === 2,
-      can_view_donations: staff.id === 1 || staff.id === 2,
-      can_verify_donations: staff.id === 1,
-      can_take_attendance: true,
-      can_manage_volunteers: staff.id === 1 || staff.id === 3,
-      can_communicate: staff.id === 1 || staff.id === 2,
-      can_generate_reports: staff.id === 1 || staff.id === 2,
-      can_manage_staff: staff.id === 1,
-      can_manage_settings: staff.id === 1,
-      can_export_data: staff.id === 1 || staff.id === 2,
-      can_manage_events: staff.id === 1 || staff.id === 3
-    };
-    setStaffPermissions(mockPermissions);
+    setIsProfileModalOpen(true);
+  };
+
+  const openEditModal = (staff: any) => {
+    setEditingStaff(staff);
+    setIsEditStaffModalOpen(true);
   };
 
   return (
@@ -121,7 +118,7 @@ const StaffPage = () => {
             <h1 className="text-3xl font-bold text-foreground">Staff Management</h1>
             <p className="text-muted-foreground">Manage staff accounts and permissions</p>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setIsAddStaffModalOpen(true)}>
             <UserPlus className="h-4 w-4" />
             Add Staff Member
           </Button>
@@ -206,59 +203,22 @@ const StaffPage = () => {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="gap-2"
-                              onClick={() => openPermissionsDialog(staff)}
-                            >
-                              <Shield className="h-4 w-4" />
-                              Manage Permissions
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                            <DialogHeader>
-                              <DialogTitle>Manage Permissions - {selectedStaff?.name}</DialogTitle>
-                              <DialogDescription>
-                                Grant or revoke permissions for this staff member. Changes take effect immediately.
-                              </DialogDescription>
-                            </DialogHeader>
-                            
-                            <div className="space-y-4">
-                              <div className="grid gap-4">
-                                {availablePermissions.map((permission) => (
-                                  <div key={permission.key} className="flex items-start space-x-3">
-                                    <Checkbox
-                                      id={permission.key}
-                                      checked={staffPermissions[permission.key] || false}
-                                      onCheckedChange={(checked) => 
-                                        handlePermissionChange(permission.key, checked as boolean)
-                                      }
-                                    />
-                                    <div className="flex-1">
-                                      <Label
-                                        htmlFor={permission.key}
-                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                      >
-                                        {permission.label}
-                                      </Label>
-                                      <p className="text-xs text-muted-foreground mt-1">
-                                        {permission.description}
-                                      </p>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                            
-                            <DialogFooter>
-                              <Button variant="outline">Cancel</Button>
-                              <Button>Save Permissions</Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
+                        <div className="flex gap-1 justify-end">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => openProfileModal(staff)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => openEditModal(staff)}
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -268,18 +228,34 @@ const StaffPage = () => {
           </CardContent>
         </Card>
 
-        {/* Staff Permissions Modal */}
-        <StaffPermissionsModal
-          isOpen={isPermissionsModalOpen}
+        {/* Add Staff Modal */}
+        <AddEditStaffModal
+          isOpen={isAddStaffModalOpen}
+          onClose={() => setIsAddStaffModalOpen(false)}
+          onSave={handleAddStaff}
+          mode="add"
+        />
+
+        {/* Edit Staff Modal */}
+        <AddEditStaffModal
+          isOpen={isEditStaffModalOpen}
           onClose={() => {
-            setIsPermissionsModalOpen(false);
+            setIsEditStaffModalOpen(false);
+            setEditingStaff(null);
+          }}
+          onSave={handleEditStaff}
+          staffMember={editingStaff}
+          mode="edit"
+        />
+
+        {/* Staff Profile Modal */}
+        <StaffProfileModal
+          isOpen={isProfileModalOpen}
+          onClose={() => {
+            setIsProfileModalOpen(false);
             setSelectedStaff(null);
           }}
-          onSave={(updatedStaff) => {
-            setStaffMembers(prev => prev.map(staff => 
-              staff.id === updatedStaff.id ? updatedStaff : staff
-            ));
-          }}
+          onEdit={openEditModal}
           staffMember={selectedStaff}
         />
       </div>
