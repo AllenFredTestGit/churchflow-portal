@@ -57,7 +57,7 @@ const BranchesPage = () => {
   const [branches, setBranches] = useState<Branch[]>([
     {
       id: 1,
-      name: "Unity Church - Main Campus",
+      name: "TCC - Main Campus",
       location: "Downtown",
       address: "123 Main Street, City Center",
       pastor: "Pastor John Smith",
@@ -65,11 +65,11 @@ const BranchesPage = () => {
       status: "Active",
       establishedDate: "1985-01-15",
       phone: "+1 234-567-8900",
-      email: "main@unitychurch.com"
+      email: "main@tccchurch.com"
     },
     {
       id: 2,
-      name: "Unity Church - North Branch",
+      name: "TCC - North Branch",
       location: "North District",
       address: "456 North Avenue, North City",
       pastor: "Pastor Sarah Johnson",
@@ -77,11 +77,11 @@ const BranchesPage = () => {
       status: "Active",
       establishedDate: "2010-06-20",
       phone: "+1 234-567-8901",
-      email: "north@unitychurch.com"
+      email: "north@tccchurch.com"
     },
     {
       id: 3,
-      name: "Unity Church - South Branch",
+      name: "TCC - South Branch",
       location: "South District",
       address: "789 South Road, South City",
       pastor: "Pastor Michael Brown",
@@ -89,11 +89,11 @@ const BranchesPage = () => {
       status: "Active",
       establishedDate: "2008-03-10",
       phone: "+1 234-567-8902",
-      email: "south@unitychurch.com"
+      email: "south@tccchurch.com"
     },
     {
       id: 4,
-      name: "Unity Church - East Campus",
+      name: "TCC - East Campus",
       location: "East District",
       address: "321 East Street, East City",
       pastor: "Pastor Lisa Davis",
@@ -368,7 +368,7 @@ const BranchesPage = () => {
                 id="branchName"
                 value={newBranchData.name}
                 onChange={(e) => setNewBranchData({ ...newBranchData, name: e.target.value })}
-                placeholder="e.g., Unity Church - West Campus"
+                placeholder="e.g., TCC - West Campus"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">

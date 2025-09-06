@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Users, UserCheck, BarChart3, Eye, FileText } from "lucide-react";
+import { SendFollowUpModal } from "./SendFollowUpModal";
 import {
   Table,
   TableBody,
@@ -32,6 +33,8 @@ interface EventManagementModalProps {
 }
 
 export function EventManagementModal({ isOpen, onClose, event }: EventManagementModalProps) {
+  const [isFollowUpModalOpen, setIsFollowUpModalOpen] = useState(false);
+  
   if (!event) return null;
 
   // Mock attendance data
@@ -59,7 +62,7 @@ export function EventManagementModal({ isOpen, onClose, event }: EventManagement
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
@@ -219,7 +222,11 @@ export function EventManagementModal({ isOpen, onClose, event }: EventManagement
                           <TableCell className="font-medium">{member.name}</TableCell>
                           <TableCell>{member.lastAttended}</TableCell>
                           <TableCell className="text-right">
-                            <Button size="sm" variant="outline">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => setIsFollowUpModalOpen(true)}
+                            >
                               Send Follow-up
                             </Button>
                           </TableCell>
@@ -280,6 +287,13 @@ export function EventManagementModal({ isOpen, onClose, event }: EventManagement
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      <SendFollowUpModal
+        isOpen={isFollowUpModalOpen}
+        onClose={() => setIsFollowUpModalOpen(false)}
+        absentMembers={absentMembers}
+        eventName={event.name}
+      />
     </Dialog>
   );
 }

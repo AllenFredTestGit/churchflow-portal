@@ -24,7 +24,7 @@ export function LoginPage() {
       setIsLoading(false);
       toast({
         title: "Login Successful",
-        description: "Welcome to Unity Church CRM",
+        description: "Welcome to TCC CRM",
       });
     }, 1500);
   };
@@ -37,7 +37,7 @@ export function LoginPage() {
           <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Heart className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Unity Church CRM</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">TCC CRM</h1>
           <p className="text-white/80">Sign in to manage your church community</p>
         </div>
 
@@ -56,7 +56,7 @@ export function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="pastor@unitychurch.org"
+                  placeholder="pastor@tccchurch.org"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -133,7 +133,7 @@ export function LoginPage() {
 
         {/* Footer */}
         <div className="text-center mt-8 text-white/60 text-sm">
-          <p>&copy; {new Date().getFullYear()} Unity Church. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} TCC. All rights reserved.</p>
         </div>
       </div>
     </div>

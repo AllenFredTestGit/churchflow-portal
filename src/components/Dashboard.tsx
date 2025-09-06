@@ -109,7 +109,7 @@ export function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-2">Welcome back, Pastor John</h1>
-            <p className="text-lg opacity-90">Here's what's happening at Unity Church today</p>
+            <p className="text-lg opacity-90">Here's what's happening at TCC today</p>
           </div>
           <div className="text-right opacity-90">
             <p className="text-sm">Today's Date</p>

@@ -19,7 +19,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <SidebarTrigger className="mr-4" />
             
             <div className="flex-1">
-              <h1 className="text-2xl font-semibold text-primary">Unity Church CRM</h1>
+              <h1 className="text-2xl font-semibold text-primary">TCC CRM</h1>
             </div>
             
             <div className="flex items-center space-x-4">

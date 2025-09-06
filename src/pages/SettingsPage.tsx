@@ -179,7 +179,7 @@ const SettingsPage = () => {
                     <Label htmlFor="church-name">Church Name</Label>
                     <Input
                       id="church-name"
-                      defaultValue="Unity Church"
+                      defaultValue="TCC"
                       className="mt-2"
                     />
                   </div>

@@ -85,7 +85,7 @@ export const VerifyDonationModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="w-full max-w-2xl mx-4">
         <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <DialogTitle className="text-xl font-bold">Verify Donation</DialogTitle>
           <Button

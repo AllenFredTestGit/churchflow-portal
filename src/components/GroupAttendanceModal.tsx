@@ -90,7 +90,7 @@ export const GroupAttendanceModal = ({ isOpen, onClose, group }: GroupAttendance
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogContent className="w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col mx-4">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />

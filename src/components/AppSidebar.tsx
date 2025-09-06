@@ -125,7 +125,7 @@ export function AppSidebar() {
             </div>
             {!collapsed && (
               <div>
-                <h2 className="text-lg font-semibold text-sidebar-primary-foreground">Unity Church</h2>
+                <h2 className="text-lg font-semibold text-sidebar-primary-foreground">TCC</h2>
                 <p className="text-sm text-sidebar-foreground/70">CRM Dashboard</p>
               </div>
             )}

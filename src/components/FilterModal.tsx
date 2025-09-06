@@ -100,7 +100,7 @@ export const FilterModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="w-full max-w-2xl max-h-[80vh] overflow-y-auto mx-4">
         <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <DialogTitle className="text-xl font-bold">{title}</DialogTitle>
           <Button
