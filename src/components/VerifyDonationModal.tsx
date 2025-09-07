@@ -85,7 +85,7 @@ export const VerifyDonationModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-2xl mx-4">
+      <DialogContent className="w-full max-w-3xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-auto">
         <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <DialogTitle className="text-xl font-bold">Verify Donation</DialogTitle>
           <Button
@@ -97,13 +97,13 @@ export const VerifyDonationModal = ({
           </Button>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-4 pb-20 sm:pb-4">
           {/* Donation Details */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Donation Details</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Donation Details</CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Amount</label>
                 <p className="text-lg font-semibold text-primary">{donation.amount}</p>
@@ -175,11 +175,13 @@ export const VerifyDonationModal = ({
           </Card>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-3 pt-4 border-t">
+          <div className="fixed bottom-0 left-0 right-0 bg-background p-4 border-t sm:relative sm:bg-transparent sm:border-t-0 sm:p-0 sm:pt-4">
+            <div className="flex flex-col sm:flex-row justify-end gap-3 max-w-3xl mx-auto">
             <Button
               variant="outline"
               onClick={onClose}
               disabled={isVerifying}
+              className="w-full sm:w-auto"
             >
               Cancel
             </Button>
@@ -189,7 +191,7 @@ export const VerifyDonationModal = ({
                 variant="secondary"
                 onClick={handleCreateMemberProfile}
                 disabled={isVerifying}
-                className="gap-2"
+                className="gap-2 w-full sm:w-auto"
               >
                 <UserPlus className="h-4 w-4" />
                 Create Member Profile
@@ -199,11 +201,12 @@ export const VerifyDonationModal = ({
             <Button
               onClick={handleVerifyDonation}
               disabled={isVerifying}
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
             >
               <User className="h-4 w-4" />
               {isVerifying ? 'Verifying...' : 'Verify & Record Donation'}
             </Button>
+            </div>
           </div>
         </div>
       </DialogContent>

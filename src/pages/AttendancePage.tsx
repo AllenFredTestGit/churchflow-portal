@@ -34,6 +34,7 @@ import { CreateEventModal } from "@/components/CreateEventModal";
 import { DigitalCheckInModal } from "@/components/DigitalCheckInModal";
 import { GroupAttendanceModal } from "@/components/GroupAttendanceModal";
 import { EventManagementModal } from "@/components/EventManagementModal";
+import { GuestTrackingModal } from "@/components/GuestTrackingModal";
 
 const AttendancePage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,6 +44,7 @@ const AttendancePage = () => {
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
   const [isGroupAttendanceModalOpen, setIsGroupAttendanceModalOpen] = useState(false);
   const [isEventManagementModalOpen, setIsEventManagementModalOpen] = useState(false);
+  const [isGuestTrackingModalOpen, setIsGuestTrackingModalOpen] = useState(false);
   const [selectedEventForCheckIn, setSelectedEventForCheckIn] = useState<any>(null);
   const [selectedEventForManagement, setSelectedEventForManagement] = useState<any>(null);
   const [selectedGroup, setSelectedGroup] = useState<any>(null);
@@ -271,29 +273,81 @@ const AttendancePage = () => {
               </CardContent>
             </Card>
 
-            {/* Recently Checked In */}
-            {checkedInMembers.size > 0 && (
+            {/* Recently Checked In & Absent Members */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {checkedInMembers.size > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      Recently Checked In
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {Array.from(checkedInMembers).map((memberId) => {
+                        const member = members.find(m => m.id === memberId);
+                        return (
+                          <Badge key={memberId} variant="secondary" className="bg-green-100 text-green-800 border-green-200">
+                            {member?.name}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Absent Members */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    Recently Checked In
+                    <Users className="h-5 w-5 text-orange-600" />
+                    Absent Members
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {Array.from(checkedInMembers).map((memberId) => {
-                      const member = members.find(m => m.id === memberId);
-                      return (
-                        <Badge key={memberId} variant="secondary" className="bg-green-100 text-green-800 border-green-200">
-                          {member?.name}
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {filteredMembers.slice(0, 3).map((member) => (
+                        <Badge key={member.id} variant="outline" className="text-orange-600 border-orange-200">
+                          {member.name}
                         </Badge>
-                      );
-                    })}
+                      ))}
+                      {filteredMembers.length > 3 && (
+                        <Badge variant="outline" className="text-muted-foreground">
+                          +{filteredMembers.length - 3} more
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="gap-2 flex-1"
+                        onClick={() => {
+                          setIsGuestTrackingModalOpen(true);
+                        }}
+                      >
+                        <Users className="h-4 w-4" />
+                        Track Guests
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="gap-2 flex-1"
+                        onClick={() => {
+                          console.log("Send follow-up to absent members");
+                        }}
+                      >
+                        <UserPlus className="h-4 w-4" />
+                        Follow-up
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
-            )}
+            </div>
           </>
         )}
 
@@ -335,6 +389,14 @@ const AttendancePage = () => {
             setSelectedEventForManagement(null);
           }}
           event={selectedEventForManagement}
+        />
+
+        {/* Guest Tracking Modal */}
+        <GuestTrackingModal
+          isOpen={isGuestTrackingModalOpen}
+          onClose={() => setIsGuestTrackingModalOpen(false)}
+          eventId={selectedEvent}
+          eventName={events.find(e => e.id === selectedEvent)?.name}
         />
       </div>
 
