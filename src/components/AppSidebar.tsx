@@ -44,6 +44,12 @@ const navigationItems = [
     description: "Family units"
   },
   {
+    title: "Groups",
+    url: "/groups",
+    icon: Users,
+    description: "Departments & ministries"
+  },
+  {
     title: "Donations",
     url: "/donations", 
     icon: Heart,

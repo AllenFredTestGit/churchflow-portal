@@ -8,6 +8,7 @@ import { LoginPage } from "./pages/LoginPage";
 import NotFound from "./pages/NotFound";
 import MembersPage from "./pages/MembersPage";
 import FamiliesPage from "./pages/FamiliesPage";
+import GroupsPage from "./pages/GroupsPage";
 import DonationsPage from "./pages/DonationsPage";
 import AttendancePage from "./pages/AttendancePage";
 import VolunteersPage from "./pages/VolunteersPage";
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/login" element={<LoginPage />} />
           <Route path="/members" element={<MembersPage />} />
           <Route path="/families" element={<FamiliesPage />} />
+          <Route path="/groups" element={<GroupsPage />} />
           <Route path="/donations" element={<DonationsPage />} />
           <Route path="/attendance" element={<AttendancePage />} />
           <Route path="/volunteers" element={<VolunteersPage />} />

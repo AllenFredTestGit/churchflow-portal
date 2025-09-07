@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { getAllStates, getLGAsByState } from "@/data/nigeria-states-lga";
 
 interface Member {
   id?: number;
@@ -26,7 +27,8 @@ interface Member {
   phone: string;
   status: string;
   joinDate: string;
-  family: string;
+  state?: string;
+  lga?: string;
   address?: string;
   emergencyContact?: string;
   dateOfBirth?: string;
@@ -55,7 +57,8 @@ export const AddEditMemberModal = ({
     phone: "",
     status: "Active",
     joinDate: new Date().toISOString().split('T')[0],
-    family: "",
+    state: "",
+    lga: "",
     address: "",
     emergencyContact: "",
     dateOfBirth: "",
@@ -64,6 +67,8 @@ export const AddEditMemberModal = ({
   
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [availableLGAs, setAvailableLGAs] = useState<string[]>([]);
+  const [states] = useState<string[]>(getAllStates());
 
   useEffect(() => {
     if (isEdit && member) {
@@ -72,8 +77,13 @@ export const AddEditMemberModal = ({
         dateOfBirth: member.dateOfBirth || "",
         address: member.address || "",
         emergencyContact: member.emergencyContact || "",
-        membershipType: member.membershipType || "Regular Member"
+        membershipType: member.membershipType || "Regular Member",
+        state: member.state || "",
+        lga: member.lga || ""
       });
+      if (member.state) {
+        setAvailableLGAs(getLGAsByState(member.state));
+      }
     } else if (!isEdit) {
       setFormData({
         name: "",
@@ -81,12 +91,14 @@ export const AddEditMemberModal = ({
         phone: "",
         status: "Active",
         joinDate: new Date().toISOString().split('T')[0],
-        family: "",
+        state: "",
+        lga: "",
         address: "",
         emergencyContact: "",
         dateOfBirth: "",
         membershipType: "Regular Member"
       });
+      setAvailableLGAs([]);
     }
     setErrors({});
   }, [member, isEdit, isOpen]);
@@ -155,6 +167,14 @@ export const AddEditMemberModal = ({
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
+    }
+    
+    // Handle state change to update LGAs
+    if (field === 'state') {
+      const lgas = getLGAsByState(value);
+      setAvailableLGAs(lgas);
+      // Clear LGA selection when state changes
+      setFormData(prev => ({ ...prev, lga: "" }));
     }
   };
 
@@ -270,13 +290,39 @@ export const AddEditMemberModal = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="family">Family Name</Label>
-                <Input
-                  id="family"
-                  value={formData.family}
-                  onChange={(e) => handleInputChange('family', e.target.value)}
-                  placeholder="Enter family name"
-                />
+                <Label htmlFor="state">State</Label>
+                <Select value={formData.state} onValueChange={(value) => handleInputChange('state', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select state" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60 overflow-y-auto">
+                    {states.map(state => (
+                      <SelectItem key={state} value={state}>{state}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="lga">Local Government Area</Label>
+                <Select 
+                  value={formData.lga} 
+                  onValueChange={(value) => handleInputChange('lga', value)}
+                  disabled={!formData.state || availableLGAs.length === 0}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={
+                      !formData.state ? "Select state first" : 
+                      availableLGAs.length === 0 ? "No LGAs available" : 
+                      "Select LGA"
+                    } />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60 overflow-y-auto">
+                    {availableLGAs.map(lga => (
+                      <SelectItem key={lga} value={lga}>{lga}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
