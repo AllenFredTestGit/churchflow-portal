@@ -22,7 +22,9 @@ import { getAllStates, getLGAsByState } from "@/data/nigeria-states-lga";
 
 interface Member {
   id?: number;
-  name: string;
+  firstName: string;
+  surname: string;
+  otherNames?: string;
   email: string;
   phone: string;
   status: string;
@@ -52,7 +54,9 @@ export const AddEditMemberModal = ({
 }: AddEditMemberModalProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState<Member>({
-    name: "",
+    firstName: "",
+    surname: "",
+    otherNames: "",
     email: "",
     phone: "",
     status: "Active",
@@ -86,7 +90,9 @@ export const AddEditMemberModal = ({
       }
     } else if (!isEdit) {
       setFormData({
-        name: "",
+        firstName: "",
+        surname: "",
+        otherNames: "",
         email: "",
         phone: "",
         status: "Active",
@@ -106,8 +112,12 @@ export const AddEditMemberModal = ({
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Full name is required";
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    }
+
+    if (!formData.surname.trim()) {
+      newErrors.surname = "Surname is required";
     }
 
     if (!formData.email.trim()) {
@@ -148,7 +158,7 @@ export const AddEditMemberModal = ({
       
       toast({
         title: `Member ${isEdit ? 'updated' : 'added'} successfully`,
-        description: `${formData.name} has been ${isEdit ? 'updated' : 'added'} to the system.`,
+        description: `${formData.firstName} ${formData.surname} has been ${isEdit ? 'updated' : 'added'} to the system.`,
       });
       
       onClose();
@@ -201,15 +211,37 @@ export const AddEditMemberModal = ({
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name *</Label>
+                <Label htmlFor="firstName">First Name *</Label>
                 <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="Enter full name"
-                  className={errors.name ? "border-destructive" : ""}
+                  id="firstName"
+                  value={formData.firstName}
+                  onChange={(e) => handleInputChange('firstName', e.target.value)}
+                  placeholder="Enter first name"
+                  className={errors.firstName ? "border-destructive" : ""}
                 />
-                {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+                {errors.firstName && <p className="text-sm text-destructive">{errors.firstName}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="surname">Surname *</Label>
+                <Input
+                  id="surname"
+                  value={formData.surname}
+                  onChange={(e) => handleInputChange('surname', e.target.value)}
+                  placeholder="Enter surname"
+                  className={errors.surname ? "border-destructive" : ""}
+                />
+                {errors.surname && <p className="text-sm text-destructive">{errors.surname}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="otherNames">Other Names</Label>
+                <Input
+                  id="otherNames"
+                  value={formData.otherNames}
+                  onChange={(e) => handleInputChange('otherNames', e.target.value)}
+                  placeholder="Enter other names (optional)"
+                />
               </div>
 
               <div className="space-y-2">

@@ -30,14 +30,16 @@ const AnalyticsPage = () => {
     { value: "members", label: "Members" },
     { value: "donations", label: "Donations" },
     { value: "attendance", label: "Attendance" },
-    { value: "volunteers", label: "Volunteers" }
+    { value: "volunteers", label: "Volunteers" },
+    { value: "groups", label: "Groups & Departments" }
   ];
 
   const filterFields = {
-    members: ["Status", "Group", "Family", "Join Date", "Last Attendance"],
+    members: ["Status", "Group", "Family", "Join Date", "Last Attendance", "State", "LGA"],
     donations: ["Amount", "Fund", "Date", "Member Status"],
     attendance: ["Event", "Date", "Group", "Status"],
-    volunteers: ["Role", "Event", "Status", "Date"]
+    volunteers: ["Role", "Event", "Status", "Date"],
+    groups: ["Type", "Status", "Leader", "Member Count", "Activity Count", "Created Date"]
   };
 
   const operators = [
@@ -64,12 +66,50 @@ const AnalyticsPage = () => {
   };
 
   const generateReport = () => {
-    // Mock report results
-    const mockResults = [
-      { id: 1, name: "John Smith", group: "Youth Fellowship", lastAttendance: "2024-08-15", status: "Active" },
-      { id: 2, name: "Mary Johnson", group: "Youth Fellowship", lastAttendance: "2024-08-10", status: "Active" },
-      { id: 3, name: "David Wilson", group: "Youth Fellowship", lastAttendance: "2024-08-05", status: "Active" }
-    ];
+    // Mock report results based on data source
+    let mockResults = [];
+    
+    if (selectedDataSource === "groups") {
+      mockResults = [
+        { 
+          id: 1, 
+          name: "Youth Ministry", 
+          type: "Ministry", 
+          leader: "John Smith", 
+          memberCount: 25, 
+          activityCount: 8,
+          lastActivity: "2024-08-30",
+          avgAttendance: "85%"
+        },
+        { 
+          id: 2, 
+          name: "Choir Department", 
+          type: "Department", 
+          leader: "Mary Johnson", 
+          memberCount: 15, 
+          activityCount: 12,
+          lastActivity: "2024-08-31",
+          avgAttendance: "92%"
+        },
+        { 
+          id: 3, 
+          name: "Finance Committee", 
+          type: "Committee", 
+          leader: "Robert Wilson", 
+          memberCount: 8, 
+          activityCount: 4,
+          lastActivity: "2024-08-25",
+          avgAttendance: "100%"
+        }
+      ];
+    } else {
+      mockResults = [
+        { id: 1, name: "John Smith", group: "Youth Fellowship", lastAttendance: "2024-08-15", status: "Active" },
+        { id: 2, name: "Mary Johnson", group: "Youth Fellowship", lastAttendance: "2024-08-10", status: "Active" },
+        { id: 3, name: "David Wilson", group: "Youth Fellowship", lastAttendance: "2024-08-05", status: "Active" }
+      ];
+    }
+    
     setReportResults(mockResults);
   };
 
@@ -85,7 +125,7 @@ const AnalyticsPage = () => {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Reports Run</CardTitle>
@@ -116,6 +156,14 @@ const AnalyticsPage = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">{dataSources.length}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Groups Analyzed</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">15</div>
             </CardContent>
           </Card>
         </div>
@@ -249,21 +297,51 @@ const AnalyticsPage = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Group</TableHead>
-                      <TableHead>Last Attendance</TableHead>
-                      <TableHead>Status</TableHead>
+                      {selectedDataSource === "groups" ? (
+                        <>
+                          <TableHead>Group Name</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Leader</TableHead>
+                          <TableHead>Members</TableHead>
+                          <TableHead>Activities</TableHead>
+                          <TableHead>Avg Attendance</TableHead>
+                          <TableHead>Last Activity</TableHead>
+                        </>
+                      ) : (
+                        <>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Group</TableHead>
+                          <TableHead>Last Attendance</TableHead>
+                          <TableHead>Status</TableHead>
+                        </>
+                      )}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {reportResults.map((result) => (
                       <TableRow key={result.id}>
-                        <TableCell className="font-medium">{result.name}</TableCell>
-                        <TableCell>{result.group}</TableCell>
-                        <TableCell>{result.lastAttendance}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{result.status}</Badge>
-                        </TableCell>
+                        {selectedDataSource === "groups" ? (
+                          <>
+                            <TableCell className="font-medium">{result.name}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline">{result.type}</Badge>
+                            </TableCell>
+                            <TableCell>{result.leader}</TableCell>
+                            <TableCell>{result.memberCount}</TableCell>
+                            <TableCell>{result.activityCount}</TableCell>
+                            <TableCell>{result.avgAttendance}</TableCell>
+                            <TableCell>{result.lastActivity}</TableCell>
+                          </>
+                        ) : (
+                          <>
+                            <TableCell className="font-medium">{result.name}</TableCell>
+                            <TableCell>{result.group}</TableCell>
+                            <TableCell>{result.lastAttendance}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline">{result.status}</Badge>
+                            </TableCell>
+                          </>
+                        )}
                       </TableRow>
                     ))}
                   </TableBody>

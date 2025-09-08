@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { X, Edit2, Users, Calendar, MapPin, Phone, Mail, UserCheck } from "lucide-react";
+import { X, Plus, Users, Calendar, MapPin, Phone, Mail, UserCheck, Eye, Search } from "lucide-react";
+import { CreateActivityModal } from "./CreateActivityModal";
+import { MemberAttendanceModal } from "./MemberAttendanceModal";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -19,27 +22,76 @@ interface Group {
   leader?: string;
   leaderContact?: string;
   members: string[];
-  meetingDay?: string;
-  meetingTime?: string;
   location?: string;
   status: 'Active' | 'Inactive';
   createdDate: string;
+}
+
+interface Activity {
+  id: number;
+  name: string;
+  description?: string;
+  date: string;
+  time: string;
+  location?: string;
+  type: string;
+  status: 'Planned' | 'Completed' | 'Cancelled';
+  attendanceCount?: number;
 }
 
 interface GroupProfileModalProps {
   group: Group | null;
   isOpen: boolean;
   onClose: () => void;
-  onEdit: (group: Group) => void;
 }
 
 export const GroupProfileModal = ({ 
   group, 
   isOpen, 
-  onClose, 
-  onEdit 
+  onClose
 }: GroupProfileModalProps) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'activities'>('overview');
+  const [isCreateActivityOpen, setIsCreateActivityOpen] = useState(false);
+  const [selectedMemberName, setSelectedMemberName] = useState<string>("");
+  const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
+  const [memberSearchTerm, setMemberSearchTerm] = useState("");
+  
+  // Mock activities data
+  const [activities] = useState<Activity[]>([
+    {
+      id: 1,
+      name: "Sunday Service",
+      description: "Weekly worship service",
+      date: "2024-08-25",
+      time: "10:00",
+      location: "Main Sanctuary",
+      type: "Worship",
+      status: "Completed",
+      attendanceCount: 45
+    },
+    {
+      id: 2,
+      name: "Bible Study",
+      description: "Weekly Bible study session",
+      date: "2024-08-22",
+      time: "19:00",
+      location: "Conference Room",
+      type: "Study",
+      status: "Completed",
+      attendanceCount: 32
+    },
+    {
+      id: 3,
+      name: "Youth Fellowship",
+      description: "Monthly youth gathering",
+      date: "2024-09-01",
+      time: "15:00",
+      location: "Youth Hall",
+      type: "Fellowship",
+      status: "Planned",
+      attendanceCount: 0
+    }
+  ]);
 
   if (!group) return null;
 
@@ -78,12 +130,12 @@ export const GroupProfileModal = ({
           </div>
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => onEdit(group)}
+              onClick={() => setIsCreateActivityOpen(true)}
               variant="outline"
               size="sm"
             >
-              <Edit2 className="h-4 w-4 mr-2" />
-              Edit Group
+              <Plus className="h-4 w-4 mr-2" />
+              Create Activity
             </Button>
             <Button
               onClick={onClose}
@@ -181,48 +233,16 @@ export const GroupProfileModal = ({
                 </Card>
               )}
 
-              {/* Meeting Schedule */}
-              {(group.meetingDay || group.meetingTime || group.location) && (
+              {/* Location */}
+              {group.location && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">Meeting Schedule</CardTitle>
+                    <CardTitle className="text-lg">Meeting Location</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {group.meetingDay && (
-                        <div>
-                          <h4 className="font-semibold text-sm text-muted-foreground mb-2">DAY</h4>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-foreground">{group.meetingDay}</span>
-                          </div>
-                        </div>
-                      )}
-
-                      {group.meetingTime && (
-                        <div>
-                          <h4 className="font-semibold text-sm text-muted-foreground mb-2">TIME</h4>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-foreground">
-                              {new Date(`2024-01-01T${group.meetingTime}`).toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-
-                      {group.location && (
-                        <div>
-                          <h4 className="font-semibold text-sm text-muted-foreground mb-2">LOCATION</h4>
-                          <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-foreground">{group.location}</span>
-                          </div>
-                        </div>
-                      )}
+                  <CardContent>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-foreground">{group.location}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -233,27 +253,64 @@ export const GroupProfileModal = ({
           {activeTab === 'members' && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Group Members ({group.members.length})</CardTitle>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-lg">Group Members ({group.members.filter(member =>
+                    member.toLowerCase().includes(memberSearchTerm.toLowerCase())
+                  ).length})</CardTitle>
+                </div>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Input
+                    placeholder="Search members..."
+                    value={memberSearchTerm}
+                    onChange={(e) => setMemberSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {group.members.map((member, index) => (
-                    <div key={index} className="flex items-center gap-3 p-3 rounded-lg border">
-                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-medium text-primary">
-                          {member.split(' ').map(n => n[0]).join('')}
-                        </span>
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {group.members
+                    .filter(member => member.toLowerCase().includes(memberSearchTerm.toLowerCase()))
+                    .map((member, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 rounded-lg border">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                          <span className="text-sm font-medium text-primary">
+                            {member.split(' ').map(n => n[0]).join('')}
+                          </span>
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-foreground">{member}</p>
+                          <p className="text-sm text-muted-foreground">Member</p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-foreground">{member}</p>
-                        <p className="text-sm text-muted-foreground">Member</p>
-                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedMemberName(member);
+                          setIsAttendanceModalOpen(true);
+                        }}
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        View Attendance
+                      </Button>
                     </div>
                   ))}
                   {group.members.length === 0 && (
                     <div className="text-center py-8 text-muted-foreground">
                       <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
                       <p>No members added yet</p>
+                    </div>
+                  )}
+                  {group.members.length > 0 && group.members.filter(member =>
+                    member.toLowerCase().includes(memberSearchTerm.toLowerCase())
+                  ).length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                      <p>No members found</p>
+                      <p className="text-sm">Try adjusting your search terms</p>
                     </div>
                   )}
                 </div>
@@ -264,18 +321,102 @@ export const GroupProfileModal = ({
           {activeTab === 'activities' && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Recent Activities</CardTitle>
+                <CardTitle className="text-lg">Group Activities</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8 text-muted-foreground">
-                  <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>No activities recorded yet</p>
-                  <p className="text-sm">Activities and events will appear here</p>
+                <div className="space-y-4">
+                  {activities.map((activity) => (
+                    <div key={activity.id} className="flex items-center justify-between p-4 rounded-lg border">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-semibold text-foreground">{activity.name}</h4>
+                          <Badge variant="outline">{activity.type}</Badge>
+                          <Badge className={
+                            activity.status === 'Completed' 
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
+                              : activity.status === 'Planned'
+                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300'
+                              : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300'
+                          }>
+                            {activity.status}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">{activity.description}</p>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            {new Date(activity.date).toLocaleDateString()}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            {new Date(`2024-01-01T${activity.time}`).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </div>
+                          {activity.location && (
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-4 h-4" />
+                              {activity.location}
+                            </div>
+                          )}
+                          {activity.status === 'Completed' && (
+                            <div className="flex items-center gap-1">
+                              <Users className="w-4 h-4" />
+                              {activity.attendanceCount} attended
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      {activity.status === 'Completed' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                        >
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Attendance
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  {activities.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                      <p>No activities recorded yet</p>
+                      <p className="text-sm">Create your first activity to get started</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
           )}
         </div>
+
+        {/* Modals */}
+        {group && (
+          <>
+            <CreateActivityModal
+              groupId={group.id}
+              groupName={group.name}
+              isOpen={isCreateActivityOpen}
+              onClose={() => setIsCreateActivityOpen(false)}
+              onSave={(activity) => {
+                console.log("Activity created:", activity);
+                setIsCreateActivityOpen(false);
+              }}
+            />
+
+            <MemberAttendanceModal
+              memberName={selectedMemberName}
+              groupName={group.name}
+              isOpen={isAttendanceModalOpen}
+              onClose={() => {
+                setIsAttendanceModalOpen(false);
+                setSelectedMemberName("");
+              }}
+            />
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );

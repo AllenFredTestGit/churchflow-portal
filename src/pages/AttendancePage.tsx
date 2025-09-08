@@ -52,11 +52,13 @@ const AttendancePage = () => {
   // Mock data
   const events = [
     { id: "1", name: "Sunday Service", date: "2024-08-31", type: "Service", category: "Regular Sunday Service", status: "Completed", expectedAttendance: 45 },
-    { id: "2", name: "Youth Fellowship", date: "2024-08-31", type: "Group", category: "Group Meeting", status: "Completed", expectedAttendance: 25 },
+    { id: "2", name: "Youth Fellowship", date: "2024-08-31", type: "Group", category: "Youth Ministry Activity", status: "Completed", expectedAttendance: 25, groupName: "Youth Ministry" },
     { id: "3", name: "Prayer Meeting", date: "2024-08-28", type: "Meeting", category: "Prayer Meeting", status: "Completed", expectedAttendance: 30 },
-    { id: "4", name: "Easter Service", date: "2024-03-31", type: "Service", category: "Annual Event", status: "Completed", expectedAttendance: 120 },
-    { id: "5", name: "Christmas Service", date: "2023-12-25", type: "Service", category: "Annual Event", status: "Completed", expectedAttendance: 150 },
-    { id: "6", name: "Board Meeting", date: "2024-08-25", type: "Meeting", category: "Meeting", status: "Completed", expectedAttendance: 12 }
+    { id: "4", name: "Choir Practice", date: "2024-08-30", type: "Group", category: "Choir Department Activity", status: "Completed", expectedAttendance: 15, groupName: "Choir Department" },
+    { id: "5", name: "Bible Study", date: "2024-08-29", type: "Group", category: "Youth Ministry Activity", status: "Completed", expectedAttendance: 20, groupName: "Youth Ministry" },
+    { id: "6", name: "Easter Service", date: "2024-03-31", type: "Service", category: "Annual Event", status: "Completed", expectedAttendance: 120 },
+    { id: "7", name: "Christmas Service", date: "2023-12-25", type: "Service", category: "Annual Event", status: "Completed", expectedAttendance: 150 },
+    { id: "8", name: "Board Meeting", date: "2024-08-25", type: "Meeting", category: "Meeting", status: "Completed", expectedAttendance: 12 }
   ];
 
   const eventCategories = [
@@ -64,7 +66,8 @@ const AttendancePage = () => {
     { value: "Regular Sunday Service", label: "Regular Sunday Services" },
     { value: "Annual Event", label: "Annual Events" },
     { value: "Meeting", label: "Meetings" },
-    { value: "Group Meeting", label: "Group Meetings" }
+    { value: "Youth Ministry Activity", label: "Youth Ministry Activities" },
+    { value: "Choir Department Activity", label: "Choir Department Activities" }
   ];
 
   const members = [
@@ -120,7 +123,12 @@ const AttendancePage = () => {
                   <SelectContent>
                     {events.map((event) => (
                       <SelectItem key={event.id} value={event.id}>
-                        {event.name} - {event.date} ({event.type})
+                        <div className="flex flex-col">
+                          <span>{event.name} - {event.date}</span>
+                          <span className="text-sm text-muted-foreground">
+                            {event.type} {event.groupName ? `(${event.groupName})` : ''}
+                          </span>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>

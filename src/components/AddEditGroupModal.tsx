@@ -27,8 +27,6 @@ interface Group {
   leader?: string;
   leaderContact?: string;
   members: string[];
-  meetingDay?: string;
-  meetingTime?: string;
   location?: string;
   status: 'Active' | 'Inactive';
   createdDate: string;
@@ -57,12 +55,20 @@ export const AddEditGroupModal = ({
     leader: "",
     leaderContact: "",
     members: [],
-    meetingDay: "",
-    meetingTime: "",
     location: "",
     status: "Active",
     createdDate: new Date().toISOString().split('T')[0]
   });
+
+  // Mock members data - in real app, this would come from API
+  const [availableMembers] = useState<Array<{id: string, name: string, phone: string}>>([
+    { id: "1", name: "John Smith", phone: "+234 803 123 4567" },
+    { id: "2", name: "Mary Johnson", phone: "+234 805 987 6543" },
+    { id: "3", name: "David Wilson", phone: "+234 807 456 1234" },
+    { id: "4", name: "Sarah Adams", phone: "+234 809 321 7890" },
+    { id: "5", name: "Michael Brown", phone: "+234 806 654 3210" },
+    { id: "6", name: "Emily Davis", phone: "+234 808 987 1234" }
+  ]);
   
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -76,8 +82,6 @@ export const AddEditGroupModal = ({
         leader: group.leader || "",
         leaderContact: group.leaderContact || "",
         members: group.members || [],
-        meetingDay: group.meetingDay || "",
-        meetingTime: group.meetingTime || "",
         location: group.location || "",
         status: group.status,
         createdDate: group.createdDate
@@ -90,8 +94,6 @@ export const AddEditGroupModal = ({
         leader: "",
         leaderContact: "",
         members: [],
-        meetingDay: "",
-        meetingTime: "",
         location: "",
         status: "Active",
         createdDate: new Date().toISOString().split('T')[0]
@@ -147,11 +149,25 @@ export const AddEditGroupModal = ({
     }
   };
 
-  const dayOptions = [
-    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
-    "First Sunday", "Second Sunday", "Third Sunday", "Fourth Sunday",
-    "First Monday", "Second Monday", "Third Monday", "Fourth Monday"
-  ];
+  const handleMemberToggle = (memberName: string) => {
+    setFormData(prev => ({
+      ...prev,
+      members: prev.members.includes(memberName)
+        ? prev.members.filter(m => m !== memberName)
+        : [...prev.members, memberName]
+    }));
+  };
+
+  const handleLeaderChange = (leaderId: string) => {
+    const selectedMember = availableMembers.find(m => m.id === leaderId);
+    if (selectedMember) {
+      setFormData(prev => ({
+        ...prev,
+        leader: selectedMember.name,
+        leaderContact: selectedMember.phone
+      }));
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -243,57 +259,50 @@ export const AddEditGroupModal = ({
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Leadership</h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="leader">Group Leader</Label>
-                <Input
-                  id="leader"
-                  value={formData.leader}
-                  onChange={(e) => handleInputChange('leader', e.target.value)}
-                  placeholder="Enter leader's name"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="leaderContact">Leader Contact</Label>
-                <Input
-                  id="leaderContact"
-                  value={formData.leaderContact}
-                  onChange={(e) => handleInputChange('leaderContact', e.target.value)}
-                  placeholder="Enter leader's phone number"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Meeting Schedule */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Meeting Schedule</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="meetingDay">Meeting Day</Label>
-                <Select value={formData.meetingDay} onValueChange={(value) => handleInputChange('meetingDay', value)}>
+                <Select 
+                  value={availableMembers.find(m => m.name === formData.leader)?.id || ""} 
+                  onValueChange={handleLeaderChange}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select meeting day" />
+                    <SelectValue placeholder="Select a leader from members" />
                   </SelectTrigger>
                   <SelectContent>
-                    {dayOptions.map(day => (
-                      <SelectItem key={day} value={day}>{day}</SelectItem>
+                    {availableMembers.map(member => (
+                      <SelectItem key={member.id} value={member.id}>
+                        <div className="flex flex-col">
+                          <span>{member.name}</span>
+                          <span className="text-sm text-muted-foreground">{member.phone}</span>
+                        </div>
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="meetingTime">Meeting Time</Label>
-                <Input
-                  id="meetingTime"
-                  type="time"
-                  value={formData.meetingTime}
-                  onChange={(e) => handleInputChange('meetingTime', e.target.value)}
-                />
-              </div>
+          {/* Members Selection */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Members ({formData.members.length})</h3>
+            
+            <div className="grid grid-cols-1 gap-3 max-h-48 overflow-y-auto border rounded-lg p-3">
+              {availableMembers.map(member => (
+                <div key={member.id} className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded">
+                  <input
+                    type="checkbox"
+                    checked={formData.members.includes(member.name)}
+                    onChange={() => handleMemberToggle(member.name)}
+                    className="rounded"
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium">{member.name}</div>
+                    <div className="text-sm text-muted-foreground">{member.phone}</div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

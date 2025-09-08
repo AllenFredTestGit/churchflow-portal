@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Search, Users, MoreHorizontal, Eye, Edit2, Trash2 } from "lucide-react";
+import { Plus, Search, Users, MoreHorizontal, Eye, Edit2, Trash2, MapPin } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,8 +31,6 @@ interface Group {
   leader?: string;
   leaderContact?: string;
   members: string[];
-  meetingDay?: string;
-  meetingTime?: string;
   location?: string;
   status: 'Active' | 'Inactive';
   createdDate: string;
@@ -49,8 +47,6 @@ const GroupsPage = () => {
       leader: "John Smith",
       leaderContact: "+234 803 123 4567",
       members: ["John Doe", "Jane Smith", "Mike Johnson", "Sarah Wilson"],
-      meetingDay: "Sunday",
-      meetingTime: "2:00 PM",
       location: "Youth Hall",
       status: "Active",
       createdDate: "2024-01-15"
@@ -63,8 +59,6 @@ const GroupsPage = () => {
       leader: "Mary Johnson",
       leaderContact: "+234 805 987 6543",
       members: ["Alice Brown", "Bob Davis", "Carol White", "David Lee"],
-      meetingDay: "Wednesday",
-      meetingTime: "6:00 PM",
       location: "Main Sanctuary",
       status: "Active",
       createdDate: "2024-01-10"
@@ -77,8 +71,6 @@ const GroupsPage = () => {
       leader: "Robert Wilson",
       leaderContact: "+234 807 456 1234",
       members: ["Emma Davis", "Frank Miller"],
-      meetingDay: "First Monday",
-      meetingTime: "7:00 PM",
       location: "Conference Room",
       status: "Active",
       createdDate: "2024-01-05"
@@ -259,7 +251,7 @@ const GroupsPage = () => {
                     <TableHead>Type</TableHead>
                     <TableHead>Leader</TableHead>
                     <TableHead>Members</TableHead>
-                    <TableHead>Meeting</TableHead>
+                      <TableHead>Meeting</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -297,13 +289,13 @@ const GroupsPage = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {group.meetingDay && group.meetingTime ? (
-                          <div>
-                            <div className="font-medium">{group.meetingDay}</div>
-                            <div className="text-sm text-muted-foreground">{group.meetingTime}</div>
+                        {group.location ? (
+                          <div className="flex items-center gap-1">
+                            <MapPin className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-sm">{group.location}</span>
                           </div>
                         ) : (
-                          <span className="text-muted-foreground">Not scheduled</span>
+                          <span className="text-muted-foreground">Not set</span>
                         )}
                       </TableCell>
                       <TableCell>
@@ -373,10 +365,6 @@ const GroupsPage = () => {
           onClose={() => {
             setIsProfileModalOpen(false);
             setSelectedGroup(null);
-          }}
-          onEdit={(group) => {
-            setIsProfileModalOpen(false);
-            handleEditGroup(group);
           }}
         />
       </div>
